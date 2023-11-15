@@ -1,7 +1,9 @@
 ﻿
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.DataAccess;
+using System;
 
 namespace Movies.BusinessLogic;
 
@@ -11,7 +13,9 @@ public static class ServiceExtension
     {
         services.ConfigureDataAcces(configuration);
 
-        services.AddSingleton<IUserService, UserService>();
+        services.AddTransient<IUserService, UserService>();
+
+        services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
     }   
 }
 

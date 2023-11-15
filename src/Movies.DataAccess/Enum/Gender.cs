@@ -1,7 +1,7 @@
 namespace Movies.DataAccess;
 
-public enum Gender
+public enum Gender : short
 {
     Male = 1,
-    Femal = 2,
+    Female = 2,
 }

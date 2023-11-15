@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using FluentValidation;
+using FluentValidation.Results;
 using Movies.BusinessLogic;
 
 namespace Movies.Web;
@@ -11,46 +12,59 @@ public class UserController : ControllerBase
 {
     private IUserService _userService;
 
-    public UserController(
-        IUserService userService
-        )
+    public UserController(IUserService userService)
     {
         _userService = userService;
     }
 
     [HttpGet]
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync(CancellationToken token)
-    {
-        IEnumerable<UserDto> users = null;
-        return users;
-    }
-
+    public async Task<IEnumerable<UserDtoResponse>> GetAllUsersAsync(CancellationToken token)
+        =>  await _userService.GetAllUsersAsync(token);
+    
+       
     [HttpGet("{id}")]
-    public async Task<UserDto> GetUserAsync([FromQuery] int id, CancellationToken token)
+    public async Task<IActionResult> GetUser(int id, CancellationToken token)
     {
-        UserDto user = new();
-        return user;
+       UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
+
+        if(user is null)
+        {
+            return NotFound();
+        }
+        return Ok(user);
     }
+       
 
     [HttpPost]
-    public async Task<UserDto> CreateUserAsync(CancellationToken token)
+    public async Task<IActionResult> CreateUser([FromBody] UserDto user, CancellationToken token)
     {
-         UserDto user = new();
-        return user;
+        UserDtoResponse createdUser = await _userService.CreateUserAsync(user, token);
+
+        return CreatedAtAction(nameof(GetUser), new {id = createdUser.Id}, createdUser);
     }
 
 
     [HttpPut]
-    public async Task<UserDto> EditUserAsync([FromBody] UserDto user, CancellationToken token)
+    public async Task<IActionResult> EditUser([FromBody] UserDto user, CancellationToken token)
     {
-       
-        return user;
+        UserDtoResponse? updatedUser = await _userService.EditUserAsync(user, token);
+
+        if (updatedUser is null)
+            return NotFound();
+
+        return Ok(updatedUser);
+        
     }
 
-    [HttpDelete]
-    public async ValueTask<bool> DeleteUserAsync([FromQuery] int id, CancellationToken token)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id, CancellationToken token)
     {
-        return true;
+        bool isDeleted = await _userService.DeleteUserAsync(id, token);
+
+        if (!isDeleted)
+            return NotFound();
+
+        return Ok();
     }
 
 

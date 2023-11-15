@@ -32,7 +32,7 @@ public class DbInitializer
                 gender SMALLINT NOT NULL,
                 phone VARCHAR(20) NOT NULL,
                 email VARCHAR(30) NOT NULL,
-                password VARCHAR(60) NOT NULL,
+                password VARCHAR(100) NOT NULL,
                 created_date TIMESTAMP DEFAULT now(),
                 role_id SMALLINT NOT NULL,
   
@@ -40,5 +40,11 @@ public class DbInitializer
                     FOREIGN KEY(role_id)
                         REFERENCES role(id));  
          """);
+
+        await conn.ExecuteAsync("""
+            CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS user_email
+            ON user
+            USING BTREE(email);
+        """);
     }
 }
