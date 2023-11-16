@@ -14,8 +14,8 @@ public static class IdentityExtensions
 
     public static string GetUserRole(this HttpContext context)
     {
-        var Role = context.User.Claims.SingleOrDefault(x => x.Type == "Role");
+        var role = context.User.Claims.SingleOrDefault(x => x.Type == "role");
 
-        return Role?.Value!;
+        return role?.Value!;
     }
 }

@@ -36,8 +36,8 @@ public class IdentityService : IIdentityService
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new (JwtRegisteredClaimNames.Sub, user.Value.Email),
             new (JwtRegisteredClaimNames.Email, user.Value.Email),
+            new (ClaimTypes.Role , user.Value.RoleName),
             new ("UserId", user.Value.Id.ToString()),
-            new ("Role", user.Value.RoleName),
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor

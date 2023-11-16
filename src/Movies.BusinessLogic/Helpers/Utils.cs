@@ -11,12 +11,7 @@ public static class Utils
     public static string ConnectionStringsSectionName => "ConnectionStrings";
     public static string JwtSettingsSectionName => "JwtSettings";
     public static string JsonContentType => "application/json";
-    
-    public const string AdminPolicyName = "Admin";
-    public const string AdminClaimName = "Role";
-    public const string AdminClaimValue = "Admin";
 
-    public const string UserPolicyName = "User";
-    public const string UserClaimName = "Role";
-    public const string UserClaimValue = "User";
+    public const string UserRole = "User";
+    public const string AdminRole = "Admin";
 }

@@ -34,16 +34,7 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-builder.Services.AddAuthorization(x =>
-{
-    x.AddPolicy(Utils.AdminPolicyName, p 
-        => p.RequireClaim(Utils.AdminClaimName, Utils.AdminClaimValue).RequireRole(Utils.AdminClaimValue));
-           
-
-    x.AddPolicy(Utils.UserPolicyName, 
-        p => p.RequireClaim(Utils.UserClaimName, Utils.UserClaimValue).RequireRole(Utils.UserClaimValue));
-});
-
+builder.Services.AddAuthorization();
 
 builder.Services.ConfigureMoviesServices(builder.Configuration);
 
