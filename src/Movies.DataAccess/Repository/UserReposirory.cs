@@ -86,7 +86,7 @@ public sealed class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<User> GetUserByEmail(string email, CancellationToken token = default)
+    public async Task<User> GetUserByEmailAsync(string email, CancellationToken token = default)
     {
         using var conn = await _db.CreateConnectionAsync(token);
 
@@ -96,4 +96,20 @@ public sealed class UserRepository : IUserRepository
 
         return user;
     }
+
+    public async Task<User> GetUserByEmailAndPasswordAsync(string email, string password, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = @"SELECT U.id as Id, U.name as Name, U.last_name as LastName, U.age as Age, U.role_id as RoleId,
+                         U.gender as Gender, U.phone as Phone, U.email as Email, R.name as RoleName
+                        FROM ""user"" as U
+                        JOIN role as R ON R.id = U.role_id
+                        WHERE U.email = @Email AND U.password = @Password";
+
+        User user = await conn.QueryFirstOrDefaultAsync<User>(new CommandDefinition(query, new {Email = email, Password = password}, cancellationToken: token));
+
+        return user;
+    }
+
 }

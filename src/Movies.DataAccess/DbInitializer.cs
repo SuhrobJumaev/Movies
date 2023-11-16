@@ -42,8 +42,8 @@ public class DbInitializer
          """);
 
         await conn.ExecuteAsync("""
-            CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS user_email
-            ON user
+            CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS email
+            ON "user"
             USING BTREE(email);
         """);
     }

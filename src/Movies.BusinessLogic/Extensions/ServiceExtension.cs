@@ -14,6 +14,7 @@ public static class ServiceExtension
         services.ConfigureDataAcces(configuration);
 
         services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IIdentityService, IdentityService>();
 
         services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
     }   

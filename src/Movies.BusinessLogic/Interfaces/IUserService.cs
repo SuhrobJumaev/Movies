@@ -7,4 +7,5 @@ public interface IUserService
     Task<IEnumerable<UserDtoResponse>> GetAllUsersAsync(CancellationToken token = default);
     Task<UserDtoResponse?> EditUserAsync(UserDto userDto, CancellationToken token = default);
     ValueTask<bool> DeleteUserAsync(int id, CancellationToken token = default);
+    Task<UserDtoResponse?> GetUserByEmailAndPasswordAsync(LoginDto loginDto, CancellationToken token = default);
 }
