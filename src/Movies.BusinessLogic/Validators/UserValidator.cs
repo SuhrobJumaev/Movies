@@ -63,7 +63,7 @@ public class UserValidator : AbstractValidator<UserDto>
 
     private  async Task<bool> IsEmailUnique(string email, CancellationToken token = default)
     {
-        User user =  await _userRepository.GetUserByEmail(email, token);
+        User user =  await _userRepository.GetUserByEmailAsync(email, token);
 
         if (user is null)
             return true;

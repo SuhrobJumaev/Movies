@@ -6,6 +6,7 @@ using Movies.BusinessLogic;
 
 namespace Movies.Web;
 
+[Authorize()]
 [ApiController]
 [Route("api/users")]
 public class UserController : ControllerBase
@@ -17,15 +18,23 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [Authorize(Utils.AdminPolicyName)]
     [HttpGet]
     public async Task<IEnumerable<UserDtoResponse>> GetAllUsersAsync(CancellationToken token)
-        =>  await _userService.GetAllUsersAsync(token);
+        => await _userService.GetAllUsersAsync(token);
+
     
-       
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id, CancellationToken token)
     {
-       UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
+        int userId = HttpContext.GetUserId();
+
+        string userRole = HttpContext.GetUserRole();
+
+        if (userRole == Utils.UserClaimValue && userId != id)
+            return Forbid();
+
+        UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
 
         if(user is null)
         {
@@ -33,8 +42,8 @@ public class UserController : ControllerBase
         }
         return Ok(user);
     }
-       
 
+    [Authorize(Utils.AdminPolicyName)]
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] UserDto user, CancellationToken token)
     {
@@ -43,7 +52,7 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUser), new {id = createdUser.Id}, createdUser);
     }
 
-
+    [Authorize(Utils.AdminPolicyName)]
     [HttpPut]
     public async Task<IActionResult> EditUser([FromBody] UserDto user, CancellationToken token)
     {
@@ -56,6 +65,7 @@ public class UserController : ControllerBase
         
     }
 
+    [Authorize(Utils.AdminPolicyName)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id, CancellationToken token)
     {

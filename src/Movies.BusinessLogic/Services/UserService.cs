@@ -1,6 +1,7 @@
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Movies.BusinessLogic.Helpers;
 using Movies.DataAccess;
@@ -12,11 +13,16 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
 
     private readonly IValidator<UserDto> _validator;
+    private readonly IValidator<LoginDto> _loginValidator;
 
-    public UserService(IUserRepository userRepository, IValidator<UserDto>  validator)
+    public UserService(
+        IUserRepository userRepository, 
+        IValidator<UserDto>  validator, 
+        IValidator<LoginDto> loginValidator)
     {
         _userRepository = userRepository;
         _validator = validator;
+        _loginValidator = loginValidator;
     }
 
     public async Task<UserDtoResponse> CreateUserAsync(UserDto userDto, CancellationToken token = default)
@@ -82,6 +88,20 @@ public class UserService : IUserService
 
         return users.UsersToResponseDto();
 
+    }
+
+    public async Task<UserDtoResponse?> GetUserByEmailAndPasswordAsync(LoginDto loginDto, CancellationToken token = default)
+    {
+        _loginValidator.Validate(loginDto, opt => opt.ThrowOnFailures());
+
+        loginDto.Password = PasswordHashHelper.PasswordHash(loginDto.Password, loginDto.Email);
+
+        User user = await _userRepository.GetUserByEmailAndPasswordAsync(loginDto.Email, loginDto.Password, token);
+
+        if (user is null)
+            return null;
+
+        return user.UserToResponseDto();
     }
 
     public async Task<UserDtoResponse?> GetUserByIdAsync(int id, CancellationToken token = default)

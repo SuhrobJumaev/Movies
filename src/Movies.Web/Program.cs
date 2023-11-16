@@ -1,10 +1,49 @@
 using Movies.Web;
 using Movies.BusinessLogic;
 using Movies.DataAccess;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection(Utils.ConnectionStringsSectionName));
+
+var config = builder.Configuration;
+
+builder.Services.Configure<JwtSettings>(config.GetSection(Utils.JwtSettingsSectionName));
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!)),
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = config["JwtSettings:Issuer"],
+        ValidAudience = config["JwtSettings:Audience"],
+        ValidateIssuer = true,
+        ValidateAudience = true,
+    };
+});
+
+builder.Services.AddAuthorization(x =>
+{
+    x.AddPolicy(Utils.AdminPolicyName, p 
+        => p.RequireClaim(Utils.AdminClaimName, Utils.AdminClaimValue).RequireRole(Utils.AdminClaimValue));
+           
+
+    x.AddPolicy(Utils.UserPolicyName, 
+        p => p.RequireClaim(Utils.UserClaimName, Utils.UserClaimValue).RequireRole(Utils.UserClaimValue));
+});
+
 
 builder.Services.ConfigureMoviesServices(builder.Configuration);
 
@@ -25,6 +64,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 
