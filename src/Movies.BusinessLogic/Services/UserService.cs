@@ -47,9 +47,8 @@ public class UserService : IUserService
     public async ValueTask<bool> DeleteUserAsync(int id, CancellationToken token = default)
     {
         if(id <= 0)
-        {
             return false;
-        }
+        
 
         bool isDeleted = await _userRepository.DeleteAsync(id, token);
 

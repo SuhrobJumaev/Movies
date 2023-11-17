@@ -8,5 +8,9 @@ namespace Movies.DataAccess;
 
 public interface IGenreRepository
 {
-    Task<List<int>> GetAllGenreIdsAsync(CancellationToken token = default);
+    ValueTask<int> CreateGenreAsync(Genre genre, CancellationToken token = default);
+    Task<Genre?> GetGenreByIdAsync(int id, CancellationToken token = default);
+    Task<IEnumerable<Genre>> GetAllGenresAsync(CancellationToken token = default);
+    ValueTask<bool> EditGenreAsync(Genre genre, CancellationToken token = default);
+    ValueTask<bool> DeleteGenreAsync(int id, CancellationToken token = default);
 }
