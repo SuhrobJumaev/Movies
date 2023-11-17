@@ -38,6 +38,16 @@ public class UserValidator : AbstractValidator<UserDto>
             RuleFor(x => x.RoleId).NotEmpty().Must(BeValidRoleId);
         });
 
+        RuleSet("EditProfile", () =>
+        {
+            RuleFor(x => x.Id).NotEmpty().GreaterThan(0);
+            RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(10);
+            RuleFor(x => x.LastName).NotEmpty().MinimumLength(3).MaximumLength(10);
+            RuleFor(x => x.Age).NotEmpty().GreaterThan((short)0).LessThan((short)100);
+            RuleFor(x => x.Gender).Must(BeValidGender);
+            RuleFor(x => x.Phone).Matches(phonePattern);
+        });
+
     }
 
     private bool BeValidGender(short gender)

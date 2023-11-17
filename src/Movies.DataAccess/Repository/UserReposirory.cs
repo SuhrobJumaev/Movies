@@ -112,4 +112,18 @@ public sealed class UserRepository : IUserRepository
         return user;
     }
 
+    public async ValueTask<bool> EditProfileAsync(User user, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = @"UPDATE ""user"" SET name = @Name, last_name = @LastName, age = @Age, gender = @Gender, phone = @Phone 
+                        WHERE id = @Id";
+
+        int updatedRows = await conn.ExecuteAsync(new CommandDefinition(query, user, cancellationToken: token));
+
+        if (updatedRows > 0)
+            return true;
+
+        return false;
+    }
 }
