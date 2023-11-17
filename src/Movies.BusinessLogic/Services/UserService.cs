@@ -55,6 +55,26 @@ public class UserService : IUserService
         return isDeleted;
     }
 
+    public async Task<UserDtoResponse?> EditProfileAsync(UserDto userDto, CancellationToken token = default)
+    {
+         _validator.Validate(userDto, opt =>
+        {
+            opt.ThrowOnFailures();
+            opt.IncludeRuleSets("EditProfile");
+        });
+
+        User user = userDto.DtoToUser();
+
+        bool isUpdated = await _userRepository.EditProfileAsync(user, token);
+
+        if (!isUpdated)
+            return null;
+
+        User updatedUser = await _userRepository.GetAsync(user.Id, token);
+
+        return updatedUser.UserToResponseDto();
+    }
+
     public async Task<UserDtoResponse?> EditUserAsync(UserDto userDto, CancellationToken token = default)
     {
         await _validator.ValidateAsync(userDto, opt =>

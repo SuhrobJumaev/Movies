@@ -56,6 +56,23 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> EditProfileAsync(UserDto user,CancellationToken token)
+    {
+        int userId = HttpContext.GetUserId();
+
+        if (userId != user.Id)
+            return Forbid();
+
+        UserDtoResponse? updatedUser = await _userService.EditProfileAsync(user, token);
+
+        if (updatedUser is null)
+            return NotFound();
+
+        return Ok(updatedUser);
+    }
+
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPost]
     public async Task<IActionResult> CreateUserAsync([FromBody] UserDto user, CancellationToken token)
