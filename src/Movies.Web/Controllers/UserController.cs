@@ -30,7 +30,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(int id, CancellationToken token)
+    public async Task<IActionResult> GetUserAsync(int id, CancellationToken token)
     {
         UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
 
@@ -43,7 +43,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("profile")]
-    public async Task<IActionResult> Get(CancellationToken token)
+    public async Task<IActionResult> GetAsync(CancellationToken token)
     {
         int userId = HttpContext.GetUserId();
 
@@ -58,16 +58,16 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] UserDto user, CancellationToken token)
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto user, CancellationToken token)
     {
         UserDtoResponse createdUser = await _userService.CreateUserAsync(user, token);
 
-        return CreatedAtAction(nameof(GetUser), new {id = createdUser.Id}, createdUser);
+        return CreatedAtAction("GetUser", new {id = createdUser.Id}, createdUser);
     }
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPut]
-    public async Task<IActionResult> EditUser([FromBody] UserDto user, CancellationToken token)
+    public async Task<IActionResult> EditUserAsync([FromBody] UserDto user, CancellationToken token)
     {
         UserDtoResponse? updatedUser = await _userService.EditUserAsync(user, token);
 
@@ -80,7 +80,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id, CancellationToken token)
+    public async Task<IActionResult> DeleteUserAsync(int id, CancellationToken token)
     {
         bool isDeleted = await _userService.DeleteUserAsync(id, token);
 
