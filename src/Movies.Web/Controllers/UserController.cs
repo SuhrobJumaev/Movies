@@ -20,9 +20,9 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersAsync(CancellationToken token)
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] UserOptionsDto optionsDto, CancellationToken token)
     {
-        IEnumerable<UserDtoResponse> users = await _userService.GetAllUsersAsync(token);
+        UsersViewResponseDto users = await _userService.GetAllUsersAsync(optionsDto,token);
         
         return Ok(users);
     }

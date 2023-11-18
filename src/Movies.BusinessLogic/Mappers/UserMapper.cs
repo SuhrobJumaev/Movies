@@ -57,5 +57,29 @@ public static class UserMapper
             RoleName = user.RoleName,
         };
     }
+
+    public static MyUserOptions DtoToUserOptions(this UserOptionsDto optionsDto)
+    {
+        return new()
+        {
+            Search = optionsDto.Search,
+            SortField = optionsDto.SortBy is null ? "id" : optionsDto.SortBy.Trim('-'),
+            SortOrder = optionsDto.SortBy is null ? SortOrder.Descending :
+                optionsDto.SortBy.StartsWith('-') ? SortOrder.Descending : SortOrder.Ascending,
+            Page = optionsDto.Page,
+            PageSize = optionsDto.PageSize,
+        };
+    }
+
+    public static UsersViewResponseDto UsersToUsersViewResponseDto(this IEnumerable<User> users, int countMovies, int currentPage, int pageSize)
+    {
+        return new()
+        {
+            CurrentPage = currentPage,
+            PageSize = pageSize,
+            CountPage = (int)Math.Ceiling(countMovies / (decimal)pageSize),
+            Users = users.UsersToResponseDto(),
+        };
+    }
 }
 

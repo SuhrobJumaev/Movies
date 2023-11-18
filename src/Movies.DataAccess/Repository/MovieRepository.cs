@@ -140,8 +140,7 @@ public class MovieRepository : IMovieRepository
             Year = options.Year,
             PageSize = options.PageSize,
             Offset = (options.Page - 1) * options.PageSize
-        }, 
-        cancellationToken: token)).Result.ToList();
+        }, cancellationToken: token)).Result.ToList();
         
         return movies;
     }

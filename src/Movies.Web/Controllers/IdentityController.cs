@@ -20,7 +20,7 @@ public class IdentityController : ControllerBase
     [HttpPost("token")]
     public async Task<IActionResult> GetTokenAsync([FromBody] LoginDto loginDto, CancellationToken token = default)
     {
-        UserDtoResponse? user = await _userService.GetUserByEmailAndPasswordAsync(loginDto, token);
+        UserDtoResponse? user = await _identityService.GetUserByEmailAndPasswordAsync(loginDto, token);
 
         if (user is null)
             return NotFound();
