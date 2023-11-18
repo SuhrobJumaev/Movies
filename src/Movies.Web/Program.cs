@@ -8,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection(Utils.ConnectionStringsSectionName));
-
 var config = builder.Configuration;
 
 builder.Services.Configure<JwtSettings>(config.GetSection(Utils.JwtSettingsSectionName));

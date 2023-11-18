@@ -10,19 +10,19 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
 
     private readonly IValidator<UserDto> _validator;
-    private readonly IValidator<LoginDto> _loginValidator;
     private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
+    private readonly IValidator<MyUserOptions> _optionsValidator;
 
     public UserService(
         IUserRepository userRepository, 
         IValidator<UserDto>  validator, 
-        IValidator<LoginDto> loginValidator,
+        IValidator<MyUserOptions> optionsValidator,
         IValidator<ChangePasswordDto> changePasswordValidator)
     {
         _userRepository = userRepository;
         _validator = validator;
-        _loginValidator = loginValidator;
         _changePasswordValidator = changePasswordValidator;
+        _optionsValidator = optionsValidator;
     }
 
     public async ValueTask<bool> ChangePasswordAsync(ChangePasswordDto changePasswordDto, CancellationToken token = default)
@@ -117,31 +117,20 @@ public class UserService : IUserService
         
     }
 
-    public async Task<IEnumerable<UserDtoResponse>> GetAllUsersAsync(CancellationToken token = default)
+    public async Task<UsersViewResponseDto> GetAllUsersAsync(UserOptionsDto optionsDto,CancellationToken token = default)
     {
-        IEnumerable<User> users =  await _userRepository.GetAllAsync(token);
+        MyUserOptions options = optionsDto.DtoToUserOptions();
+
+        _optionsValidator.ValidateAndThrow(options);
+
+        IEnumerable<User> users =  await _userRepository.GetAllAsync(options, token);
+
+        if (users is null)
+            return new();
         
-        if(users is null)
-        {
-            return Enumerable.Empty<UserDtoResponse>();
-        }
+        int countMovies = await _userRepository.GetCountUsers(options, token);
 
-        return users.UsersToResponseDto();
-
-    }
-
-    public async Task<UserDtoResponse?> GetUserByEmailAndPasswordAsync(LoginDto loginDto, CancellationToken token = default)
-    {
-        _loginValidator.Validate(loginDto, opt => opt.ThrowOnFailures());
-
-        loginDto.Password = PasswordHashHelper.PasswordHash(loginDto.Password, loginDto.Email);
-
-        User user = await _userRepository.GetUserByEmailAndPasswordAsync(loginDto.Email, loginDto.Password, token);
-
-        if (user is null)
-            return null;
-
-        return user.UserToResponseDto();
+        return users.UsersToUsersViewResponseDto(countMovies, options.Page, options.PageSize);
     }
 
     public async Task<UserDtoResponse?> GetUserByIdAsync(int id, CancellationToken token = default)

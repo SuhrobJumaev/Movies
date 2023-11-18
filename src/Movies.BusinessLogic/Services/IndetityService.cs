@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Movies.BusinessLogic.Helpers;
+using Movies.DataAccess;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -12,16 +14,16 @@ public class IdentityService : IIdentityService
 {
     private readonly IOptions<JwtSettings> _options;
     private readonly IValidator<LoginDto> _validator;
-    private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
 
     public IdentityService(
         IOptions<JwtSettings> options, 
         IValidator<LoginDto> validator, 
-        IUserService userService)
+        IUserRepository userRepository)
     {
         _options = options;
         _validator = validator;
-        _userService = userService;
+        _userRepository = userRepository;
 
     }
 
@@ -54,5 +56,19 @@ public class IdentityService : IIdentityService
         string jwtToken = tokenHandler.WriteToken(token); 
 
         return jwtToken;
+    }
+
+    public async Task<UserDtoResponse?> GetUserByEmailAndPasswordAsync(LoginDto loginDto, CancellationToken token = default)
+    {
+        _validator.Validate(loginDto, opt => opt.ThrowOnFailures());
+
+        loginDto.Password = PasswordHashHelper.PasswordHash(loginDto.Password, loginDto.Email);
+
+        User user = await _userRepository.GetUserByEmailAndPasswordAsync(loginDto.Email, loginDto.Password, token);
+
+        if (user is null)
+            return null;
+
+        return user.UserToResponseDto();
     }
 }
