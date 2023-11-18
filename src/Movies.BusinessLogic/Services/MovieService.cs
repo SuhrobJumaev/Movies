@@ -13,12 +13,18 @@ public class MovieService : IMovieService
     private readonly IMovieRepository _movieRepository;
     private readonly IGenreRepository _genreRepository;
     private readonly IValidator<MovieDto> _validator;
+    private readonly IValidator<MovieOptions> _optionsValidator;
 
-    public MovieService(IMovieRepository movieRepository, IGenreRepository genreRepository, IValidator<MovieDto> validator)
+    public MovieService(
+        IMovieRepository movieRepository, 
+        IGenreRepository genreRepository, 
+        IValidator<MovieDto> validator, 
+        IValidator<MovieOptions> optionsValidator)
     {
         _movieRepository = movieRepository;
         _genreRepository = genreRepository;
         _validator = validator;
+        _optionsValidator = optionsValidator;
     }
 
     public async Task<MovieDtoResponse> CreateMovieAsync(MovieDto movieDto, CancellationToken token = default)
@@ -80,15 +86,20 @@ public class MovieService : IMovieService
         return updatedMovie.MovieToResponseDto();
     }
 
-  
-    public async Task<IEnumerable<MovieDtoResponse>> GetAllMoviesAsync(CancellationToken token = default)
+    public async Task<MoviesViewResponseDto> GetAllMoviesAsync(MovieOptionsDto optionDto, CancellationToken token = default)
     {
-        IEnumerable<Movie> movies = await _movieRepository.GetAllAsync(token);
+        MovieOptions options = optionDto.DtoToMovieOptions();
+
+        _optionsValidator.Validate(options, opt => opt.ThrowOnFailures());
+
+        IEnumerable<Movie> movies = await _movieRepository.GetAllAsync(options, token);
 
         if(movies is null)
-            return Enumerable.Empty<MovieDtoResponse>();
+            return new();
 
-        return movies.MoviesToResponseDto();
+        int countMovies = await _movieRepository.GetCountMovies(options, token);
+
+        return movies.MoviesToMoviesViewResponseDto(countMovies,options.Page, options.PageSize);
     }
 
     public async Task<MovieDtoResponse?> GetMovieByIdAsync(int id, CancellationToken token = default)
@@ -108,6 +119,5 @@ public class MovieService : IMovieService
 
         return movie.MovieToResponseDto();
     }
-
     
 }

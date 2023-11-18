@@ -24,9 +24,9 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllMoviesAsync(CancellationToken token)
+    public async Task<IActionResult> GetAllMoviesAsync([FromQuery] MovieOptionsDto optionsDto, CancellationToken token)
     {
-        IEnumerable<MovieDtoResponse> movies = await _movieService.GetAllMoviesAsync(token);
+        MoviesViewResponseDto movies = await _movieService.GetAllMoviesAsync(optionsDto,token);
 
         return Ok(movies);
     }
