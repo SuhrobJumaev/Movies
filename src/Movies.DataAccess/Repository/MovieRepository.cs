@@ -118,14 +118,30 @@ public class MovieRepository : IMovieRepository
         return updatedRow > 0;
     }
 
-    public async Task<IEnumerable<Movie>> GetAllAsync(CancellationToken token = default)
+    public async Task<IEnumerable<Movie>> GetAllAsync(MovieOptions options, CancellationToken token = default)
     {
         using var conn = await _db.CreateConnectionAsync(token);
 
-        string query = @"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug
-                        FROM movie";
+        options.SortField = (options.SortField == "year") ? "year_of_release" : options.SortField;
 
-        IEnumerable<Movie> movies = conn.QueryAsync<Movie>(query, new CommandDefinition(query, token)).Result.ToList();
+        string orderClause = $"ORDER BY {options.SortField} {(options.SortOrder == SortOrder.Ascending? "ASC" : "DESC")}";
+
+        string query = $@"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug
+                        FROM movie
+                        WHERE (@Title IS NULL OR title ILIKE ('%' || @Title || '%')) 
+                        AND  (@Year IS NULL OR year_of_release = @Year)
+                        {orderClause}
+                        LIMIT @PageSize
+                        OFFSET @Offset";
+
+        IEnumerable<Movie> movies = conn.QueryAsync<Movie>(new CommandDefinition(query, new 
+        { 
+            Title = options.Title,
+            Year = options.Year,
+            PageSize = options.PageSize,
+            Offset = (options.Page - 1) * options.PageSize
+        }, 
+        cancellationToken: token)).Result.ToList();
         
         return movies;
     }
@@ -181,5 +197,23 @@ public class MovieRepository : IMovieRepository
             return true;
 
         return false;
+    }
+
+    public async ValueTask<int> GetCountMovies(MovieOptions options, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = $@"SELECT COUNT(id)
+                        FROM movie
+                        WHERE (@Title IS NULL OR title ILIKE ('%' || @Title || '%')) 
+                        AND  (@Year IS NULL OR year_of_release = @Year)";
+
+        int countMovies = await conn.QueryFirstOrDefaultAsync<int>(new CommandDefinition(query, new {
+            Title = options.Title,
+            Year = options.Year,
+        },
+        cancellationToken: token));
+
+        return countMovies;
     }
 }
