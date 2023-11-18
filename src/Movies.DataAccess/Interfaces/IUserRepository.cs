@@ -10,4 +10,5 @@ public interface IUserRepository
     ValueTask<bool> DeleteAsync(int id, CancellationToken token = default);
     Task<User> GetUserByEmailAsync(string email, CancellationToken token = default);
     Task<User> GetUserByEmailAndPasswordAsync(string email, string password, CancellationToken token = default);
+    ValueTask<bool> ChangeUserPasswordAsync(int? userId, string newPassword, CancellationToken token = default);
 }

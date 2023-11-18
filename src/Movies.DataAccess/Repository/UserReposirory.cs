@@ -126,4 +126,19 @@ public sealed class UserRepository : IUserRepository
 
         return false;
     }
+
+    public async ValueTask<bool> ChangeUserPasswordAsync(int? userId, string newPassword, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = @"UPDATE ""user"" SET password = @NewPassword 
+                        WHERE id = @Id";
+
+        int updatedRows = await conn.ExecuteAsync(new CommandDefinition(query, new {Id = userId, NewPassword = newPassword}, cancellationToken: token));
+
+        if (updatedRows > 0)
+            return true;
+
+        return false;
+    }
 }

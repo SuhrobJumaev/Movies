@@ -58,7 +58,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPut("profile")]
-    public async Task<IActionResult> EditProfileAsync(UserDto user,CancellationToken token)
+    public async Task<IActionResult> EditProfileAsync([FromBody]UserDto user,CancellationToken token)
     {
         int userId = HttpContext.GetUserId();
 
@@ -71,6 +71,21 @@ public class UserController : ControllerBase
             return NotFound();
 
         return Ok(updatedUser);
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody]ChangePasswordDto changePasswordDto, CancellationToken token)
+    {
+        changePasswordDto.UserId = HttpContext.GetUserId();
+        changePasswordDto.Email = HttpContext.GetUserEmail();
+
+        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token);
+
+        if (!isChangedPassword)
+            return NotFound();
+
+        return Ok();
     }
 
     [Authorize(Roles = Utils.AdminRole)]

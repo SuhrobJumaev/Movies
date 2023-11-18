@@ -1,8 +1,5 @@
 
 using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Movies.BusinessLogic.Helpers;
 using Movies.DataAccess;
 
@@ -14,15 +11,39 @@ public class UserService : IUserService
 
     private readonly IValidator<UserDto> _validator;
     private readonly IValidator<LoginDto> _loginValidator;
+    private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
 
     public UserService(
         IUserRepository userRepository, 
         IValidator<UserDto>  validator, 
-        IValidator<LoginDto> loginValidator)
+        IValidator<LoginDto> loginValidator,
+        IValidator<ChangePasswordDto> changePasswordValidator)
     {
         _userRepository = userRepository;
         _validator = validator;
         _loginValidator = loginValidator;
+        _changePasswordValidator = changePasswordValidator;
+    }
+
+    public async ValueTask<bool> ChangePasswordAsync(ChangePasswordDto changePasswordDto, CancellationToken token = default)
+    {
+        _changePasswordValidator.ValidateAndThrow(changePasswordDto);
+
+        changePasswordDto.OldPassword = PasswordHashHelper.PasswordHash(changePasswordDto.OldPassword, changePasswordDto.Email);
+
+        User user = await _userRepository.GetUserByEmailAndPasswordAsync(changePasswordDto.Email, changePasswordDto.OldPassword, token);
+
+        if (user is null)
+            return false;
+
+        changePasswordDto.NewPassword = PasswordHashHelper.PasswordHash(changePasswordDto.NewPassword, changePasswordDto.Email);
+
+        bool isChangePassword = await _userRepository.ChangeUserPasswordAsync(changePasswordDto.UserId, changePasswordDto.NewPassword, token);
+
+        if (!isChangePassword)
+            return false;
+
+        return true;
     }
 
     public async Task<UserDtoResponse> CreateUserAsync(UserDto userDto, CancellationToken token = default)
