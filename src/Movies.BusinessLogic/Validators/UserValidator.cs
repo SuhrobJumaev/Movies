@@ -1,6 +1,4 @@
-﻿
-
-using FluentValidation;
+﻿using FluentValidation;
 using Movies.DataAccess;
 
 namespace Movies.BusinessLogic;
@@ -47,13 +45,11 @@ public class UserValidator : AbstractValidator<UserDto>
             RuleFor(x => x.Gender).Must(BeValidGender);
             RuleFor(x => x.Phone).Matches(phonePattern);
         });
-
     }
 
     private bool BeValidGender(short gender)
     {
         Gender convertedGender = (Gender)gender;
-
 
         if(convertedGender != Gender.Male && convertedGender != Gender.Female)
             return false;
