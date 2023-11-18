@@ -19,7 +19,7 @@ public static class UserMapper
             Phone = userDto.Phone,
             Email = userDto.Email,
             Password = userDto.Password,
-            RoleId = (Role)userDto.RoleId,
+            RoleId = userDto.RoleId,
         };
     }
 
@@ -50,7 +50,7 @@ public static class UserMapper
             Name = user.Name,
             LastName = user.LastName,
             Age = user.Age,
-            RoleId = (short)user.RoleId,
+            RoleId = user.RoleId,
             Gender = (short)user.Gender,
             Email = user.Email,
             Phone = user.Phone,

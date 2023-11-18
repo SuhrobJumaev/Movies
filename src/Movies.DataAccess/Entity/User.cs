@@ -10,6 +10,6 @@ public sealed class User
     public string Phone { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public Role RoleId { get; set; }
+    public short RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
 } 

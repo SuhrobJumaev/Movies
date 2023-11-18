@@ -34,11 +34,12 @@ public class DbInitializer
                 email VARCHAR(30) NOT NULL,
                 password VARCHAR(100) NOT NULL,
                 created_date TIMESTAMP DEFAULT now(),
-                role_id SMALLINT NOT NULL,
+                role_id SMALLINT DEFAULT 0 ,
   
                 CONSTRAINT fk_role
                     FOREIGN KEY(role_id)
-                        REFERENCES role(id));  
+                        REFERENCES role(id)
+                             ON DELETE SET DEFAULT);
          """);
 
         await conn.ExecuteAsync("""

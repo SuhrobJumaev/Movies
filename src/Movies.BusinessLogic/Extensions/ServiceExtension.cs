@@ -17,6 +17,7 @@ public static class ServiceExtension
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<IMovieService, MovieService>();
         services.AddTransient<IGenreService, GenreService>();
+        services.AddTransient<IRoleService, RoleService>();
 
         services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
     }   
