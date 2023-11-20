@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.BusinessLogic;
-
 namespace Movies.Web;
 
+[Authorize]
 [ApiController]
 [Route("api/movies")]
-[Authorize]
+[Asp.Versioning.ApiVersion(Utils.API_VERSION_1)]
 public class MovieController : ControllerBase
 {
     private readonly IMovieService _movieService;
@@ -15,8 +16,10 @@ public class MovieController : ControllerBase
         _movieService = movieService;
     }
 
-    [HttpPost]
     [Authorize(Utils.AdminRole)]
+    [HttpPost]
+    [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse createdMovie = await _movieService.CreateMovieAsync(movieDto);
@@ -25,6 +28,7 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(MoviesViewResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllMoviesAsync([FromQuery] MovieOptionsDto optionsDto, CancellationToken token)
     {
         MoviesViewResponseDto movies = await _movieService.GetAllMoviesAsync(optionsDto,token);
@@ -33,6 +37,8 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMovieAsync(int id, CancellationToken token)
     {
         MovieDtoResponse? movie = await _movieService.GetMovieByIdAsync(id, token);
@@ -42,9 +48,12 @@ public class MovieController : ControllerBase
 
         return Ok(movie);
     }
-    
-    [HttpPut]
+
     [Authorize(Utils.AdminRole)]
+    [HttpPut]
+    [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EditMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse? updatedMovie = await _movieService.EditMovieAsync(movieDto, token);
@@ -55,8 +64,10 @@ public class MovieController : ControllerBase
         return Ok(updatedMovie);
     }
 
-    [HttpDelete("{id}")]
     [Authorize(Utils.AdminRole)]
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMovieAsync(int id, CancellationToken token)
     {
         bool isDeleted = await _movieService.DeleteMovieAsync(id,token);
