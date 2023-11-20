@@ -33,17 +33,19 @@ public sealed class ExceptionHandlingMiddleware
         }
     }
 
-    private  Task HandleValidationExceptionAsync(HttpContext httpContext, ValidationException ex, CancellationToken token = default)
+    private Task HandleValidationExceptionAsync(HttpContext httpContext, ValidationException ex, CancellationToken token = default)
     {
-        var errorResponse = new {
-                StatusCode = HttpStatusCode.BadRequest, 
-                Message = "Request validation error!", 
-                Errors = ex.Errors.Select(x => new 
-                {
-                    PropertyName = x.PropertyName,
-                    Message = x.ErrorMessage
-                })};
-        
+        var errorResponse = new ValidationFailureResponse
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            Message = "Request validation error!",
+            Errors = ex.Errors.Select(x => new ValidationResponse
+            {
+                PropertyName = x.PropertyName,
+                Message = x.ErrorMessage
+            })
+        };
+
         httpContext.Response.ContentType = Utils.JsonContentType;
         httpContext.Response.StatusCode = (int)errorResponse.StatusCode;
 

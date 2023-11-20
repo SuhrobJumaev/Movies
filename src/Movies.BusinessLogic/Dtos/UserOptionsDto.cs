@@ -9,6 +9,7 @@ public class UserOptionsDto
     public string? Search { get; set; } = null;
     public string? SortBy { get; set; } = null;
 
+    
     public int Page
     {
         get => _page;

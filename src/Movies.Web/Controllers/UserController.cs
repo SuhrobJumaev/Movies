@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using FluentValidation.Results;
 using Movies.BusinessLogic;
+using Asp.Versioning;
 
 namespace Movies.Web;
 
 
 [ApiController]
 [Route("api/users")]
+[ApiVersion(Utils.API_VERSION_1)]
 public class UserController : ControllerBase
 {
     private IUserService _userService;
@@ -20,6 +22,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet]
+    [ProducesResponseType(typeof(UsersViewResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllUsersAsync([FromQuery] UserOptionsDto optionsDto, CancellationToken token = default)
     {
         UsersViewResponseDto users = await _userService.GetAllUsersAsync(optionsDto,token);
@@ -27,9 +30,10 @@ public class UserController : ControllerBase
         return Ok(users);
     }
          
-
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserAsync(int id, CancellationToken token = default)
     {
         UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
@@ -43,7 +47,9 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("profile")]
-    public async Task<IActionResult> GetAsync(CancellationToken token = default)
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProfileAsync(CancellationToken token = default)
     {
         int userId = HttpContext.GetUserId();
 
@@ -58,6 +64,9 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPut("profile")]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> EditProfileAsync([FromBody]UserDto user,CancellationToken token = default)
     {
         int userId = HttpContext.GetUserId();
@@ -75,6 +84,8 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPut("change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ChangePasswordAsync([FromBody]ChangePasswordDto changePasswordDto, CancellationToken token = default)
     {
         changePasswordDto.UserId = HttpContext.GetUserId();
@@ -90,6 +101,8 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPost]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUserAsync([FromBody] UserDto user, CancellationToken token = default)
     {
         UserDtoResponse createdUser = await _userService.CreateUserAsync(user, token);
@@ -99,6 +112,9 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPut]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> EditUserAsync([FromBody] UserDto user, CancellationToken token = default)
     {
         UserDtoResponse? updatedUser = await _userService.EditUserAsync(user, token);
@@ -112,6 +128,8 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUserAsync(int id, CancellationToken token = default)
     {
         bool isDeleted = await _userService.DeleteUserAsync(id, token);
@@ -121,6 +139,5 @@ public class UserController : ControllerBase
 
         return Ok();
     }
-
 
 }
