@@ -6,7 +6,7 @@ namespace Movies.Web;
 
 [ApiController]
 [Route("api/movies")]
-[Authorize(Roles = Utils.AdminRole)]
+[Authorize]
 public class MovieController : ControllerBase
 {
     private readonly IMovieService _movieService;
@@ -16,6 +16,7 @@ public class MovieController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Utils.AdminRole)]
     public async Task<IActionResult> CreateMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse createdMovie = await _movieService.CreateMovieAsync(movieDto);
@@ -43,6 +44,7 @@ public class MovieController : ControllerBase
     }
     
     [HttpPut]
+    [Authorize(Utils.AdminRole)]
     public async Task<IActionResult> EditMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse? updatedMovie = await _movieService.EditMovieAsync(movieDto, token);
@@ -54,6 +56,7 @@ public class MovieController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Utils.AdminRole)]
     public async Task<IActionResult> DeleteMovieAsync(int id, CancellationToken token)
     {
         bool isDeleted = await _movieService.DeleteMovieAsync(id,token);

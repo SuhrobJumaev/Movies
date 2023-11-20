@@ -9,4 +9,6 @@ public static class Utils
 
     public const string UserRole = "User";
     public const string AdminRole = "Admin";
+
+    public const int UserRoleByDefault = 2;
 }

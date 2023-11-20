@@ -81,5 +81,20 @@ public static class UserMapper
             Users = users.UsersToResponseDto(),
         };
     }
+
+    public static User RegistrationDtoToUser(this RegistrationDto dto)
+    {
+        return new()
+        {
+            Name = dto.Name,
+            LastName = dto.LastName,
+            Age = dto.Age,
+            Gender = (Gender)dto.Gender,
+            Phone = dto.Phone,
+            Email = dto.Email,
+            Password = dto.Password,
+            RoleId = Utils.UserRoleByDefault,
+        };
+    }
 }
 

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Movies.BusinessLogic;
+using Movies.DataAccess;
 
 namespace Movies.Web;
 
@@ -26,6 +27,16 @@ public class IdentityController : ControllerBase
             return NotFound();
 
         string jwtToken =  _identityService.GenerateToken(user);
+
+        return Ok(jwtToken);
+    }
+
+    [HttpPost("registration")]
+    public async Task<IActionResult> Registation([FromBody] RegistrationDto registrationDto, CancellationToken token = default)
+    {
+        UserDtoResponse createdUser = await _identityService.RegistrationUser(registrationDto, token);
+
+        string jwtToken =  _identityService.GenerateToken(createdUser);
 
         return Ok(jwtToken);
     }
