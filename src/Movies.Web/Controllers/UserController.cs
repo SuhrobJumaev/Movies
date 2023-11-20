@@ -20,7 +20,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersAsync([FromQuery] UserOptionsDto optionsDto, CancellationToken token)
+    public async Task<IActionResult> GetAllUsersAsync([FromQuery] UserOptionsDto optionsDto, CancellationToken token = default)
     {
         UsersViewResponseDto users = await _userService.GetAllUsersAsync(optionsDto,token);
         
@@ -30,7 +30,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserAsync(int id, CancellationToken token)
+    public async Task<IActionResult> GetUserAsync(int id, CancellationToken token = default)
     {
         UserDtoResponse? user =  await _userService.GetUserByIdAsync(id, token);
 
@@ -43,7 +43,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("profile")]
-    public async Task<IActionResult> GetAsync(CancellationToken token)
+    public async Task<IActionResult> GetAsync(CancellationToken token = default)
     {
         int userId = HttpContext.GetUserId();
 
@@ -58,7 +58,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPut("profile")]
-    public async Task<IActionResult> EditProfileAsync([FromBody]UserDto user,CancellationToken token)
+    public async Task<IActionResult> EditProfileAsync([FromBody]UserDto user,CancellationToken token = default)
     {
         int userId = HttpContext.GetUserId();
 
@@ -75,12 +75,12 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePasswordAsync([FromBody]ChangePasswordDto changePasswordDto, CancellationToken token)
+    public async Task<IActionResult> ChangePasswordAsync([FromBody]ChangePasswordDto changePasswordDto, CancellationToken token = default)
     {
         changePasswordDto.UserId = HttpContext.GetUserId();
         changePasswordDto.Email = HttpContext.GetUserEmail();
 
-        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token);
+        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token = default);
 
         if (!isChangedPassword)
             return NotFound();
@@ -90,7 +90,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPost]
-    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto user, CancellationToken token)
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto user, CancellationToken token = default)
     {
         UserDtoResponse createdUser = await _userService.CreateUserAsync(user, token);
 
@@ -99,7 +99,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpPut]
-    public async Task<IActionResult> EditUserAsync([FromBody] UserDto user, CancellationToken token)
+    public async Task<IActionResult> EditUserAsync([FromBody] UserDto user, CancellationToken token = default)
     {
         UserDtoResponse? updatedUser = await _userService.EditUserAsync(user, token);
 
@@ -112,7 +112,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = Utils.AdminRole)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUserAsync(int id, CancellationToken token)
+    public async Task<IActionResult> DeleteUserAsync(int id, CancellationToken token = default)
     {
         bool isDeleted = await _userService.DeleteUserAsync(id, token);
 
