@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FluentValidation;
-using FluentValidation.Results;
 using Movies.BusinessLogic;
 using Asp.Versioning;
 

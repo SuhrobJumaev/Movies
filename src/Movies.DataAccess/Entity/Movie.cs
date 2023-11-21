@@ -10,6 +10,7 @@ public partial class Movie
     public int YearOfRelease { get; set; }
     public List<int> GenresIds { get; set; }
     public IEnumerable<Genre> Genres { get; set; }
+    public string VideoName { get; set; }
     public string Slug => GenerateSlug();
 
     private string GenerateSlug()

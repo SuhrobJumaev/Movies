@@ -10,6 +10,6 @@ public class MovieDtoResponse
     public string Title { get; set; }
     public string Slug { get; set; }
     public int YearOfRelease { get; set; }
-    
+    public string Video { get; set; }
     public IEnumerable<Genre> Genres { get; set; }
 }

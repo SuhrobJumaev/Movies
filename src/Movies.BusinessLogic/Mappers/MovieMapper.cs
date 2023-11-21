@@ -15,6 +15,7 @@ public static class MovieMapper
             Title = movieDto.Title,
             YearOfRelease = movieDto.YearOfRelease,
             GenresIds = movieDto.GenresIds,
+            VideoName = movieDto.VideoName!,
         };
     }
 
@@ -28,6 +29,7 @@ public static class MovieMapper
             Title = m.Title,
             Slug = m.Slug,
             YearOfRelease = m.YearOfRelease,
+            Video = Utils.StreamVideoPath + m.VideoName,
 
         }).ToList();
 
@@ -43,6 +45,7 @@ public static class MovieMapper
             Slug = movie.Slug,
             YearOfRelease = movie.YearOfRelease,
             Genres = movie.Genres,
+            Video = Utils.StreamVideoPath + movie.VideoName,
         };
     }
 
