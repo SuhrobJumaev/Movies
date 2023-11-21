@@ -19,8 +19,8 @@ public class MovieRepository : IMovieRepository
         using var transaction = conn.BeginTransaction();
 
         int movieId = await conn.QueryFirstOrDefaultAsync<int>(new CommandDefinition("""
-                INSERT INTO movie (slug, title, year_of_release)
-                VALUES (@Slug, @Title, @YearOfRelease) RETURNING id;
+                INSERT INTO movie (slug, title, year_of_release, video_name)
+                VALUES (@Slug, @Title, @YearOfRelease, @VideoName) RETURNING id;
             """, movie, cancellationToken: token));
 
         if(movieId > 0)
@@ -78,12 +78,15 @@ public class MovieRepository : IMovieRepository
                 $@"DELETE FROM movie_genre WHERE movie_id = @MovieId AND genre_id IN({string.Join(',', genreIdsForDelete)})"
                 ,new { MovieId = movie.Id},cancellationToken: token));
 
-            if(deleteRow <= 0)           
+            if(deleteRow <= 0)
+            {
+                transaction.Rollback();
                 return false;
+            }   
         }
 
         int updatedRow = await conn.ExecuteAsync(new CommandDefinition("""
-                UPDATE movie SET title = @Title, slug = @Slug, year_of_release = @YearOfRelease WHERE id = @Id;
+                UPDATE movie SET title = @Title, slug = @Slug, year_of_release = @YearOfRelease, video_name = @VideoName  WHERE id = @Id;
             """, movie, cancellationToken: token));
 
         if (updatedRow <= 0)
@@ -126,7 +129,7 @@ public class MovieRepository : IMovieRepository
 
         string orderClause = $"ORDER BY {options.SortField} {(options.SortOrder == SortOrder.Ascending? "ASC" : "DESC")}";
 
-        string query = $@"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug
+        string query = $@"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug, video_name as VideoName
                         FROM movie
                         WHERE (@Title IS NULL OR title ILIKE ('%' || @Title || '%')) 
                         AND  (@Year IS NULL OR year_of_release = @Year)
@@ -175,7 +178,7 @@ public class MovieRepository : IMovieRepository
     {
         using var conn = await _db.CreateConnectionAsync(token);
 
-        string query = @"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug
+        string query = @"SELECT id as Id, year_of_release as YearOfRelease, title as Title, slug as Slug, video_name as VideoName
                         FROM movie 
                         WHERE id = @Id";
 

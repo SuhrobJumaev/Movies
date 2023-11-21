@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.BusinessLogic;
+
+
 namespace Movies.Web;
 
 [Authorize]
 [ApiController]
 [Route("api/movies")]
-[Asp.Versioning.ApiVersion(Utils.API_VERSION_1)]
+[ApiVersion(Utils.API_VERSION_1)]
 public class MovieController : ControllerBase
 {
     private readonly IMovieService _movieService;
@@ -16,11 +18,11 @@ public class MovieController : ControllerBase
         _movieService = movieService;
     }
 
-    [Authorize(Utils.AdminRole)]
+    [Authorize(Roles = Utils.AdminRole)]
     [HttpPost]
     [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
+    public async Task<IActionResult> CreateMovieAsync([FromForm] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse createdMovie = await _movieService.CreateMovieAsync(movieDto);
 
@@ -49,12 +51,21 @@ public class MovieController : ControllerBase
         return Ok(movie);
     }
 
-    [Authorize(Utils.AdminRole)]
+    [HttpGet("stream-movie/{videoName}")]
+    [ProducesResponseType(typeof(IAsyncEnumerable<byte[]>), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async IAsyncEnumerable<byte[]> SrteamVideo(string videoName, CancellationToken token)
+    {
+        await foreach (var chunk in _movieService.StreamVideoAsync(videoName))
+            yield return chunk;
+    }
+
+    [Authorize(Roles = Utils.AdminRole)]
     [HttpPut]
     [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EditMovieAsync([FromBody] MovieDto movieDto, CancellationToken token)
+    public async Task<IActionResult> EditMovieAsync([FromForm] MovieDto movieDto, CancellationToken token)
     {
         MovieDtoResponse? updatedMovie = await _movieService.EditMovieAsync(movieDto, token);
 
@@ -64,7 +75,7 @@ public class MovieController : ControllerBase
         return Ok(updatedMovie);
     }
 
-    [Authorize(Utils.AdminRole)]
+    [Authorize(Roles = Utils.AdminRole)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

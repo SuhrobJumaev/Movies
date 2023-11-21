@@ -49,8 +49,6 @@ builder.Services.AddApiVersioning(x =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddHealthChecks()
-    .AddCheck<DatabaseHealthCheck>(Utils.HealthCheckName);
 
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen(x => x.OperationFilter<SwaggerDefaultValues>());
@@ -80,7 +78,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+app.UseStaticFiles();
 app.MapControllers();
 
 var dbInitializer = app.Services.GetRequiredService<DbInitializer>();

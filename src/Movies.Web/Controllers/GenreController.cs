@@ -6,8 +6,8 @@ namespace Movies.Web;
 
 [ApiController]
 [Route("api/genres")]
-[Asp.Versioning.ApiVersion(Utils.API_VERSION_1)]
-[Authorize(Utils.AdminRole)]
+[ApiVersion(Utils.API_VERSION_1)]
+[Authorize(Roles = Utils.AdminRole)]
 public class GenreController : ControllerBase
 {
     private IGenreService _genreService;

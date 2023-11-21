@@ -47,7 +47,8 @@ public class DbInitializer
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             slug TEXT NOT NULL, 
             title TEXT NOT NULL,
-            year_of_release INT NOT NULL);
+            year_of_release INT NOT NULL,
+            video_name varchar(100) NOT NULL);
          """);
 
         await conn.ExecuteAsync("""
@@ -85,6 +86,24 @@ public class DbInitializer
             USING BTREE(email);
         """);
 
-        
+        await conn.ExecuteAsync("""
+            CREATE INDEX IF NOT EXISTS user_name_surname
+            ON "user" (name, last_name);
+            """);
+
+        await conn.ExecuteAsync("""
+            CREATE INDEX IF NOT EXISTS movie_title  
+            ON "movie" (title);
+            """);
+
+        await conn.ExecuteAsync("""
+            CREATE INDEX IF NOT EXISTS movie_year_of_release  
+            ON "movie" (year_of_release);
+            """);
+
+        await conn.ExecuteAsync("""
+            CREATE INDEX IF NOT EXISTS movie_title_year_of_release  
+            ON "movie" (title,year_of_release);
+            """);
     }
 }

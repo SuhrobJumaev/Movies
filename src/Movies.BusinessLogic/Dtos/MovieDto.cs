@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace Movies.BusinessLogic;
 
-public readonly struct MovieDto
+public class  MovieDto
 {
-    public int Id { get; init; }
-    public string Title { get; init; }
-    public int YearOfRelease { get; init; }
-   
-    public List<int> GenresIds { get; init; }
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public int YearOfRelease { get; set; }
+    public IFormFile Video { get; set; }
+    public string? VideoName { get; set; } = string.Empty;
+    public List<int> GenresIds { get; set; }
 }

@@ -15,19 +15,19 @@ public class UserValidator : AbstractValidator<UserDto>
         _userRepository = userRepository;
         _roleRepository = roleRepository;
 
-        RuleSet("Create", () =>
+        RuleSet(Utils.CreateRuleSetName, () =>
         {
             RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(10);
             RuleFor(x => x.LastName).NotEmpty().MinimumLength(3).MaximumLength(10);
             RuleFor(x => x.Age).NotEmpty().GreaterThan((short)0).LessThan((short)100);
             RuleFor(x => x.Gender).Must(BeValidGender);
             RuleFor(x => x.Phone).Matches(phonePattern);
-            RuleFor(x => x.Email).EmailAddress().MustAsync(IsEmailUnique).WithMessage("Пользователь с таким email'ом -{PropertyValue} уже существует.");
+            RuleFor(x => x.Email).EmailAddress().MustAsync(IsEmailUnique).WithMessage(Utils.ValidationErrorMessage.EmailAlreadyExistsErrorMessage);
             RuleFor(x => x.Password).NotEmpty().MinimumLength(6).MaximumLength(20);
             RuleFor(x => x.RoleId).NotEmpty().MustAsync(IsValidRoleId);
         });
 
-        RuleSet("Edit", () =>
+        RuleSet(Utils.EditRuleSetName, () =>
         {
             RuleFor(x => x.Id).NotEmpty().GreaterThan(0);
             RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(10);
@@ -38,7 +38,7 @@ public class UserValidator : AbstractValidator<UserDto>
             RuleFor(x => x.RoleId).NotEmpty().MustAsync(IsValidRoleId);
         });
 
-        RuleSet("EditProfile", () =>
+        RuleSet(Utils.EditProfileRuleSetName, () =>
         {
             RuleFor(x => x.Id).NotEmpty().GreaterThan(0);
             RuleFor(x => x.Name).NotEmpty().MinimumLength(3).MaximumLength(10);

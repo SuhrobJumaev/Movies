@@ -22,7 +22,7 @@ namespace Movies.BusinessLogic.Validators
             RuleFor(x => x.Age).NotEmpty().GreaterThan((short)0).LessThan((short)100);
             RuleFor(x => x.Gender).Must(BeValidGender);
             RuleFor(x => x.Phone).Matches(phonePattern);
-            RuleFor(x => x.Email).EmailAddress().MustAsync(IsEmailUnique).WithMessage("Пользователь с таким email'ом -{PropertyValue} уже существует.");
+            RuleFor(x => x.Email).EmailAddress().MustAsync(IsEmailUnique).WithMessage(Utils.ValidationErrorMessage.EmailAlreadyExistsErrorMessage);
             RuleFor(x => x.Password).NotEmpty().MinimumLength(6).MaximumLength(20);
             RuleFor(x => x.ConfirmPassword).Equal(x => x.Password);
         }

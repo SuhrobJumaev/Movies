@@ -7,12 +7,12 @@ public class GenreValidator : AbstractValidator<GenreDto>
 {
     public GenreValidator()
     {
-        RuleSet("Create",() =>
+        RuleSet(Utils.CreateRuleSetName,() =>
         {
             RuleFor(x => x.Name).NotEmpty();
         });
 
-        RuleSet("Edit", () =>
+        RuleSet(Utils.EditRuleSetName, () =>
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Id).NotEmpty().GreaterThan(0);

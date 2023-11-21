@@ -2,6 +2,7 @@
 using Movies.DataAccess;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,17 +15,20 @@ public class MovieService : IMovieService
     private readonly IGenreRepository _genreRepository;
     private readonly IValidator<MovieDto> _validator;
     private readonly IValidator<MovieOptions> _optionsValidator;
+    private  readonly IVideoService _videoService;
 
     public MovieService(
         IMovieRepository movieRepository, 
         IGenreRepository genreRepository, 
         IValidator<MovieDto> validator, 
-        IValidator<MovieOptions> optionsValidator)
+        IValidator<MovieOptions> optionsValidator,
+        IVideoService videoService)
     {
         _movieRepository = movieRepository;
         _genreRepository = genreRepository;
         _validator = validator;
         _optionsValidator = optionsValidator;
+        _videoService = videoService;
     }
 
     public async Task<MovieDtoResponse> CreateMovieAsync(MovieDto movieDto, CancellationToken token = default)
@@ -35,6 +39,10 @@ public class MovieService : IMovieService
             opt.IncludeRuleSets("Create");
         });
 
+        string videoName = await _videoService.SaveVideoAsync(movieDto.Video);
+        
+        movieDto.VideoName = videoName;
+        
         Movie movie = movieDto.DtoToMovie();
 
         int movieId = await _movieRepository.CreateAsync(movie);
@@ -53,8 +61,15 @@ public class MovieService : IMovieService
     {
         if (id <= 0)
             return false;
+        
+        Movie existsMovie = await _movieRepository.GetAsync(id);
 
         bool isDeleted = await _movieRepository.DeleteAsync(id, token);
+
+        if (isDeleted)
+        {
+            _videoService.DeleteVideo(existsMovie.VideoName);
+        }
 
         return isDeleted;
     }
@@ -66,6 +81,20 @@ public class MovieService : IMovieService
             opt.ThrowOnFailures();
             opt.IncludeRuleSets("Edit");
         });
+
+        Movie existsMovie = await _movieRepository.GetAsync(movieDto.Id);
+
+        if (movieDto.Video is not null)
+        {   
+            _videoService.DeleteVideo(existsMovie.VideoName);
+
+            string videoName = await _videoService.SaveVideoAsync(movieDto.Video);
+            movieDto.VideoName = videoName;
+        }
+        else
+        {
+            movieDto.VideoName = existsMovie.VideoName;
+        }
 
         Movie movie = movieDto.DtoToMovie();
 
@@ -119,5 +148,22 @@ public class MovieService : IMovieService
 
         return movie.MovieToResponseDto();
     }
-    
+
+    public async IAsyncEnumerable<byte[]> StreamVideoAsync(string videoName, CancellationToken token = default)
+    {
+        using var fileStream = new FileStream(Utils.PathToSaveFiles + videoName, FileMode.Open, FileAccess.Read);
+        
+        var buffer = new byte[Utils.ChunkSize];
+        int bytesRead;
+
+        while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+        {
+            var chunk = new byte[bytesRead];
+            Array.Copy(buffer, chunk, bytesRead);
+            yield return chunk;
+
+            await Task.Delay(100);
+        }
+    }
+
 }

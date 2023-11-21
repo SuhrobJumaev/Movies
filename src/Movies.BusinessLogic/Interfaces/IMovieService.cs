@@ -8,4 +8,5 @@ public interface IMovieService
     Task<MoviesViewResponseDto> GetAllMoviesAsync(MovieOptionsDto optionDto, CancellationToken token = default);
     Task<MovieDtoResponse?> EditMovieAsync(MovieDto movieDto, CancellationToken token = default);
     ValueTask<bool> DeleteMovieAsync(int id, CancellationToken token = default);
+    IAsyncEnumerable<byte[]> StreamVideoAsync(string videoName, CancellationToken token = default);
 }
