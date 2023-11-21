@@ -37,4 +37,4 @@ Final project for Alif Academy
 - Movies.Web
 - Movies.BusinessLogic
 - Movies.DataAccess
-  
+- **Хранилище данных:** [PostgreSQL].
