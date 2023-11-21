@@ -33,3 +33,8 @@ Final project for Alif Academy
   - Возможность проверки работоспособности API.
 
 ## Технологии
+- **Backend:** ASP.NET Core 7. Трехуровневая архитектура.
+- Movies.Web
+- Movies.BusinessLogic
+- Movies.DataAccess
+  
