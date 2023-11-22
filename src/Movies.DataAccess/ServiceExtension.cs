@@ -17,5 +17,8 @@ public static class ServiceExtension
         services.AddSingleton<DbInitializer>();
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IMovieRepository, MovieRepository>();
+        services.AddScoped<IGenreRepository, GenreRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
     }
 }

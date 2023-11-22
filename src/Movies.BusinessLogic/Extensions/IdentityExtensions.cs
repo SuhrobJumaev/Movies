@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Movies.BusinessLogic;
 
@@ -9,13 +10,20 @@ public static class IdentityExtensions
     {
         var userId = context.User.Claims.SingleOrDefault(x => x.Type == "UserId");
 
-        return int.Parse(userId?.Value!);
+        return int.Parse(userId?.Value);
     }
 
     public static string GetUserRole(this HttpContext context)
     {
-        var Role = context.User.Claims.SingleOrDefault(x => x.Type == "Role");
+        var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
 
-        return Role?.Value!;
+        return role!;
+    }
+
+    public static string GetUserEmail(this HttpContext context)
+    {
+        var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+
+        return email!;
     }
 }

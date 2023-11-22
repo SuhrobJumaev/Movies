@@ -213,3 +213,5 @@ FakesAssemblies/
 /PS/obj/
 /WebHook/.config
 /WebHook/Properties/PublishProfiles
+src/postgres-data/
+src/wwwroot/

@@ -19,7 +19,7 @@ public static class UserMapper
             Phone = userDto.Phone,
             Email = userDto.Email,
             Password = userDto.Password,
-            RoleId = (Role)userDto.RoleId,
+            RoleId = userDto.RoleId,
         };
     }
 
@@ -50,11 +50,50 @@ public static class UserMapper
             Name = user.Name,
             LastName = user.LastName,
             Age = user.Age,
-            RoleId = (short)user.RoleId,
+            RoleId = user.RoleId,
             Gender = (short)user.Gender,
             Email = user.Email,
             Phone = user.Phone,
             RoleName = user.RoleName,
+        };
+    }
+
+    public static MyUserOptions DtoToUserOptions(this UserOptionsDto optionsDto)
+    {
+        return new()
+        {
+            Search = optionsDto.Search,
+            SortField = optionsDto.SortBy is null ? "id" : optionsDto.SortBy.Trim('-'),
+            SortOrder = optionsDto.SortBy is null ? SortOrder.Descending :
+                optionsDto.SortBy.StartsWith('-') ? SortOrder.Descending : SortOrder.Ascending,
+            Page = optionsDto.Page,
+            PageSize = optionsDto.PageSize,
+        };
+    }
+
+    public static UsersViewResponseDto UsersToUsersViewResponseDto(this IEnumerable<User> users, int countMovies, int currentPage, int pageSize)
+    {
+        return new()
+        {
+            CurrentPage = currentPage,
+            PageSize = pageSize,
+            CountPage = (int)Math.Ceiling(countMovies / (decimal)pageSize),
+            Users = users.UsersToResponseDto(),
+        };
+    }
+
+    public static User RegistrationDtoToUser(this RegistrationDto dto)
+    {
+        return new()
+        {
+            Name = dto.Name,
+            LastName = dto.LastName,
+            Age = dto.Age,
+            Gender = (Gender)dto.Gender,
+            Phone = dto.Phone,
+            Email = dto.Email,
+            Password = dto.Password,
+            RoleId = Utils.UserRoleByDefault,
         };
     }
 }

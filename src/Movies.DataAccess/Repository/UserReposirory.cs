@@ -57,16 +57,27 @@ public sealed class UserRepository : IUserRepository
         return false;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken token = default)
+    public async Task<IEnumerable<User>> GetAllAsync(MyUserOptions options, CancellationToken token = default)
     {
         using var conn = await _db.CreateConnectionAsync(token);
 
-        string query = @"SELECT U.id as Id, U.name as Name, U.last_name as LastName, U.age as Age, U.role_id as RoleId,
+        string orderClause = $"ORDER BY U.{options.SortField} {(options.SortOrder == SortOrder.Ascending ? "ASC" : "DESC")}";
+        
+        string query = $@"SELECT U.id as Id, U.name as Name, U.last_name as LastName, U.age as Age, U.role_id as RoleId,
                          U.gender as Gender, U.phone as Phone, U.email as Email, R.name as RoleName
                          FROM ""user"" as U
-                        JOIN role as R ON R.id = U.role_id";
+                         JOIN role as R ON R.id = U.role_id
+                         WHERE (@Search IS NULL OR (CONCAT(U.name,'',U.last_name) ILIKE ('%' || @Search || '%' ) OR CONCAT(U.last_name,'',U.name) ILIKE ('%' || @Search || '%' ) ))
+                         {orderClause}
+                         LIMIT @PageSize
+                         OFFSET @Offset";
 
-        IEnumerable<User> users = conn.QueryAsync<User>(new CommandDefinition(query, token)).Result.ToList();
+        IEnumerable<User> users = conn.QueryAsync<User>(new CommandDefinition(query,new 
+        { 
+            Search = options.Search?.Replace(" ", ""),
+            PageSize = options.PageSize,
+            Offset = (options.Page - 1) * options.PageSize
+        }, cancellationToken: token)).Result.ToList();
 
         return users;
     }
@@ -112,4 +123,50 @@ public sealed class UserRepository : IUserRepository
         return user;
     }
 
+    public async ValueTask<bool> EditProfileAsync(User user, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = @"UPDATE ""user"" SET name = @Name, last_name = @LastName, age = @Age, gender = @Gender, phone = @Phone 
+                        WHERE id = @Id";
+
+        int updatedRows = await conn.ExecuteAsync(new CommandDefinition(query, user, cancellationToken: token));
+
+        if (updatedRows > 0)
+            return true;
+
+        return false;
+    }
+
+    public async ValueTask<bool> ChangeUserPasswordAsync(int? userId, string newPassword, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = @"UPDATE ""user"" SET password = @NewPassword 
+                        WHERE id = @Id";
+
+        int updatedRows = await conn.ExecuteAsync(new CommandDefinition(query, new {Id = userId, NewPassword = newPassword}, cancellationToken: token));
+
+        if (updatedRows > 0)
+            return true;
+
+        return false;
+    }
+
+    public async ValueTask<int> GetCountUsers(MyUserOptions options, CancellationToken token = default)
+    {
+        using var conn = await _db.CreateConnectionAsync(token);
+
+        string query = $@"SELECT COUNT(U.id)
+                         FROM ""user"" as U
+                         JOIN role as R ON R.id = U.role_id
+                         WHERE (@Search IS NULL OR (CONCAT(U.name,'',U.last_name) ILIKE ('%' || @Search || '%' ) OR CONCAT(U.last_name,'',U.name) ILIKE ('%' || @Search || '%' ) ))";
+
+        int  countUsers = await conn.QueryFirstOrDefaultAsync<int>(new CommandDefinition(query, new
+        {
+            Search = options.Search?.Replace(" ", ""),
+        }, cancellationToken: token));
+
+        return countUsers;
+    }
 }
