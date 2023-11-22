@@ -57,21 +57,6 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(x =>
-    {
-        foreach (var description in app.DescribeApiVersions())
-        {
-            x.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-                description.GroupName);
-            
-        }
-    });
-}
-
 app.UseSwagger();
 app.UseSwaggerUI(x =>
 {
