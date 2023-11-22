@@ -51,7 +51,7 @@ public class UserService : IUserService
         await _validator.ValidateAsync(userDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Create");
+            opt.IncludeRuleSets(Utils.CreateRuleSetName);
         }, token);
 
         User user = userDto.DtoToUser();
@@ -81,7 +81,7 @@ public class UserService : IUserService
          _validator.Validate(userDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("EditProfile");
+            opt.IncludeRuleSets(Utils.EditProfileRuleSetName);
         });
 
         User user = userDto.DtoToUser();
@@ -101,7 +101,7 @@ public class UserService : IUserService
         await _validator.ValidateAsync(userDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Edit");
+            opt.IncludeRuleSets(Utils.EditRuleSetName);
         }, token);
 
         User user = userDto.DtoToUser();

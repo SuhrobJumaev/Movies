@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Http;
+
 namespace Movies.BusinessLogic;
 
 public static class Utils
@@ -26,8 +28,9 @@ public static class Utils
     public static string HealthCheckName => "DataBase";
     public static string HealthCheckErrorMessage => "DataBase is unhealthy";
 
-    public const string PathToSaveFiles = "D:\\AlifAcademyC#\\Movies\\src\\Movies.Web\\wwwroot\\";
-    public const string StreamVideoPath = "https:/localhost:7297/api/movies/stream-movie/";
+    //TODO Generate base Url automatic
+    //public const string StreamVideoPath = "https:/localhost:7297/api/movies/stream-movie/";
+    public const string StreamVideoPath = "http:/localhost:8080/api/movies/stream-movie/";
 
     public const int ChunkSize = 1024;
 

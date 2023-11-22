@@ -16,11 +16,38 @@ public class DbInitializer
         using var conn = await _db.CreateConnectionAsync();
 
         await conn.ExecuteAsync("""
+                DO $$ 
+            BEGIN
+                IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'movie') THEN
+                    CREATE DATABASE movie
+                        WITH
+                        OWNER = postgres
+                        ENCODING = 'UTF8'
+                        LC_COLLATE = 'ru_RU.UTF-8'
+                        LC_CTYPE = 'ru_RU.UTF-8'
+                        CONNECTION LIMIT = -1;
+                END IF;
+            END $$;
+            
+            """);
+
+        await conn.ExecuteAsync("""
             CREATE TABLE IF NOT EXISTS role(
                 id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 name VARCHAR(20) NOT NULL,
                 created_date TIMESTAMP  DEFAULT now()
             );
+
+             DO $$ 
+                BEGIN
+                    -- Check if the table is empty
+                    IF NOT EXISTS (SELECT 1 FROM role LIMIT 1) THEN
+                 
+                    INSERT INTO public.role(name) VALUES ( 'Admin'), ( 'User');
+                    END IF;
+             END $$;
+         
+
          """);
 
         await conn.ExecuteAsync("""
@@ -40,6 +67,20 @@ public class DbInitializer
                     FOREIGN KEY(role_id)
                         REFERENCES role(id)
                              ON DELETE SET DEFAULT);
+
+                 DO $$ 
+                    BEGIN
+                     -- Check if the table is empty
+                     IF NOT EXISTS (SELECT 1 FROM "user" LIMIT 1) THEN
+                 
+                         INSERT INTO public."user"(name, last_name, age, gender, phone, email, password, role_id)
+                        VALUES ( 'test', 'test', 24, 1, '992900090909', 'test1@gmail.com', '94d8309a5ff754a542089b3faa045d6a173060b83301995fe4ee788218b6666e', 1);
+                     END IF;
+                 END $$;
+
+                
+
+                
          """);
 
         await conn.ExecuteAsync("""
@@ -54,11 +95,9 @@ public class DbInitializer
         await conn.ExecuteAsync("""
             CREATE TABLE IF NOT EXISTS "genre" (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name VARCHAR(20) NOT NULL);
-
-            
+            name VARCHAR(20) NOT NULL) ;            
          """);
-        //INSERT INTO genre(name) VALUES ('Комедия'),('Боевик'),('Детектив'),('Детский'),('Анимация');
+        
 
         await conn.ExecuteAsync("""
             CREATE TABLE IF NOT EXISTS "movie_genre"(

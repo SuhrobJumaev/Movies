@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Movies.DataAccess;
 using System;
 using System.Collections.Generic;
@@ -16,19 +18,23 @@ public class MovieService : IMovieService
     private readonly IValidator<MovieDto> _validator;
     private readonly IValidator<MovieOptions> _optionsValidator;
     private  readonly IVideoService _videoService;
+    private readonly string _pathToWwwRoot;
 
     public MovieService(
         IMovieRepository movieRepository, 
         IGenreRepository genreRepository, 
         IValidator<MovieDto> validator, 
         IValidator<MovieOptions> optionsValidator,
-        IVideoService videoService)
+        IVideoService videoService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _movieRepository = movieRepository;
         _genreRepository = genreRepository;
         _validator = validator;
         _optionsValidator = optionsValidator;
         _videoService = videoService;
+        _pathToWwwRoot = webHostEnvironment.WebRootPath;
+
     }
 
     public async Task<MovieDtoResponse> CreateMovieAsync(MovieDto movieDto, CancellationToken token = default)
@@ -36,7 +42,7 @@ public class MovieService : IMovieService
         _validator.Validate(movieDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Create");
+            opt.IncludeRuleSets(Utils.CreateRuleSetName);
         });
 
         string videoName = await _videoService.SaveVideoAsync(movieDto.Video);
@@ -79,8 +85,10 @@ public class MovieService : IMovieService
          _validator.Validate(movieDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Edit");
+            opt.IncludeRuleSets(Utils.EditRuleSetName);
         });
+
+        
 
         Movie existsMovie = await _movieRepository.GetAsync(movieDto.Id);
 
@@ -151,7 +159,7 @@ public class MovieService : IMovieService
 
     public async IAsyncEnumerable<byte[]> StreamVideoAsync(string videoName, CancellationToken token = default)
     {
-        using var fileStream = new FileStream(Utils.PathToSaveFiles + videoName, FileMode.Open, FileAccess.Read);
+        using var fileStream = new FileStream(_pathToWwwRoot + "/" + videoName, FileMode.Open, FileAccess.Read);
         
         var buffer = new byte[Utils.ChunkSize];
         int bytesRead;
