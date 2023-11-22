@@ -38,3 +38,12 @@ Final project for Alif Academy
 - Movies.BusinessLogic
 - Movies.DataAccess
 - **Хранилище данных:** [PostgreSQL].
+
+ ## Установка
+ - Cклонируйте репозиторий: git clone https://github.com/SuhrobJumaev/Movies.git
+ - Перейдите в директорию проекта: cd Movies
+ - В дириектории Movies: выполнить команду docker-compose up --build
+ - Подождать пока проект забилдится и запуститься в контейнере.
+ - **Важно:** При первом запуске, нужно подождать минут 5, пока запуститься контейнер с БД. После запуска БД, приложения автоматически создаст таблицы и создаст пользователя.
+ - Приложения будет доступно по адресу: http://localhost:8080/swagger/index.html
+ - Пользователь для авторизации: **Email:** test1@gmail.com **Password:** 123456
