@@ -34,6 +34,8 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
+builder.WebHost.UseKestrel(options => options.Limits.MaxRequestBodySize = Utils.UploadFileSize10GB);
+
 builder.Services.AddAuthorization();
 
 builder.Services.ConfigureMoviesServices(builder.Configuration);
@@ -74,9 +76,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseStaticFiles();
 app.MapControllers();
+
+
 
 var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
 await dbInitializer.InitializeAsync();
