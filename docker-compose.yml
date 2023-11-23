@@ -9,8 +9,9 @@ services:
         ports:
           - 8080:80
         volumes:
-          - ./src/wwwroot:/app/wwwroot
-          
+          - ./wwwroot:/app/wwwroot
+        depends_on:
+          - db
         networks:
           - aspnetcoreapp-network
     db:
@@ -23,7 +24,7 @@ services:
         ports:
           - 54432:5432
         volumes:
-          - ./src/postgres-data:/var/lib/postgresql/data
+          - ./postgres-data:/var/lib/postgresql/data
         networks:
           - aspnetcoreapp-network
             
