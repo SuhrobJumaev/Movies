@@ -33,7 +33,8 @@ public static class Utils
     public const string StreamVideoPath = "http:/localhost:8080/api/movies/stream-movie/";
 
     public const int ChunkSize = 1024;
-
+    public const Int64 UploadFileSize10GB = 10_737_418_240;
+    
     public static class ApiEndpoints
     {
         public const string HealthCheckEndpoint = "_health";
