@@ -1,6 +1,6 @@
 namespace Movies.BusinessLogic;
 
-public readonly struct UserDto
+public readonly struct UserDto 
 {
     public int Id { get; init; }
     public string Name { get; init; }

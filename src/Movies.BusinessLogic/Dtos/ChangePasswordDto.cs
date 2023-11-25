@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Movies.BusinessLogic;
 
-public  struct ChangePasswordDto
+public  struct ChangePasswordDto 
 {
     public string OldPassword { get; set; }
     public string NewPassword { get; set; }
