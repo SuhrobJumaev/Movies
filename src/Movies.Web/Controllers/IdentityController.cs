@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.BusinessLogic;
 using Movies.DataAccess;
@@ -45,5 +46,60 @@ public class IdentityController : ControllerBase
         string jwtToken =  _identityService.GenerateToken(createdUser);
 
         return Ok(jwtToken);
+    }
+
+
+    [Authorize]
+    [HttpPut("profile")]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> EditProfileAsync([FromBody] UserDto user, CancellationToken token = default)
+    {
+        int userId = HttpContext.GetUserId();
+
+        if (userId != user.Id)
+            return Forbid();
+
+        UserDtoResponse? updatedUser = await _userService.EditProfileAsync(user, token);
+
+        if (updatedUser is null)
+            return NotFound();
+
+        return Ok(updatedUser);
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto changePasswordDto, CancellationToken token = default)
+    {
+        changePasswordDto.UserId = HttpContext.GetUserId();
+        changePasswordDto.Email = HttpContext.GetUserEmail();
+
+        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token = default);
+
+        if (!isChangedPassword)
+            return NotFound();
+
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpGet("profile")]
+    [ProducesResponseType(typeof(UserDtoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProfileAsync(CancellationToken token = default)
+    {
+        int userId = HttpContext.GetUserId();
+
+        UserDtoResponse? user = await _userService.GetUserByIdAsync(userId, token);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+        return Ok(user);
     }
 }
