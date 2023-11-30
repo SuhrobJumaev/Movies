@@ -22,7 +22,7 @@ public class GenreService : IGenreService
         _validator.Validate(genreDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Create");
+            opt.IncludeRuleSets(Utils.CreateRuleSetName);
         });
 
         Genre genre = genreDto.DtoToGenre();
@@ -47,7 +47,7 @@ public class GenreService : IGenreService
         _validator.Validate(genreDto, opt =>
         {
             opt.ThrowOnFailures();
-            opt.IncludeRuleSets("Edit");
+            opt.IncludeRuleSets(Utils.EditRuleSetName);
         });
 
         Genre genre = genreDto.DtoToGenre();

@@ -60,7 +60,7 @@ public class UserService : IUserService
 
         int userId = await _userRepository.CreateAsync(user, token);
         
-        User createdUser = await _userRepository.GetAsync(userId);
+        User createdUser = await _userRepository.GetAsync(userId, token);
 
         return createdUser.UserToResponseDto();
     }

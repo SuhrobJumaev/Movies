@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -45,7 +46,7 @@ public class MovieService : IMovieService
             opt.IncludeRuleSets(Utils.CreateRuleSetName);
         });
 
-        string videoName = await _videoService.SaveVideoAsync(movieDto.Video);
+        string videoName = await _videoService.SaveVideoAsync(movieDto.Video, token);
         
         movieDto.VideoName = videoName;
         
@@ -96,7 +97,7 @@ public class MovieService : IMovieService
         {   
             _videoService.DeleteVideo(existsMovie.VideoName);
 
-            string videoName = await _videoService.SaveVideoAsync(movieDto.Video);
+            string videoName = await _videoService.SaveVideoAsync(movieDto.Video, token);
             movieDto.VideoName = videoName;
         }
         else
@@ -108,7 +109,7 @@ public class MovieService : IMovieService
 
         IEnumerable<int> movieGenreIds = await _movieRepository.GetGenreIdsByMovieId(movie.Id, token);
 
-        bool isUpdated  = await _movieRepository.EditAsync(movie, movieGenreIds);
+        bool isUpdated  = await _movieRepository.EditAsync(movie, movieGenreIds , token);
         
         if(!isUpdated) 
             return null;
@@ -157,14 +158,14 @@ public class MovieService : IMovieService
         return movie.MovieToResponseDto();
     }
 
-    public async IAsyncEnumerable<byte[]> StreamVideoAsync(string videoName, CancellationToken token = default)
+    public async IAsyncEnumerable<byte[]> StreamVideoAsync(string videoName, [EnumeratorCancellation] CancellationToken token = default)
     {
         using var fileStream = new FileStream(_pathToWwwRoot + "/" + videoName, FileMode.Open, FileAccess.Read);
         
         var buffer = new byte[Utils.ChunkSize];
         int bytesRead;
 
-        while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+        while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
         {
             var chunk = new byte[bytesRead];
             Array.Copy(buffer, chunk, bytesRead);

@@ -78,7 +78,7 @@ public class IdentityController : ControllerBase
         changePasswordDto.UserId = HttpContext.GetUserId();
         changePasswordDto.Email = HttpContext.GetUserEmail();
 
-        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token = default);
+        bool isChangedPassword = await _userService.ChangePasswordAsync(changePasswordDto, token);
 
         if (!isChangedPassword)
             return NotFound();

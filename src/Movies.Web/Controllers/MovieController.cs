@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.BusinessLogic;
-
+using System.Runtime.CompilerServices;
 
 namespace Movies.Web;
 
@@ -22,16 +22,16 @@ public class MovieController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateMovieAsync([FromForm] MovieDto movieDto, CancellationToken token)
+    public async Task<IActionResult> CreateMovieAsync([FromForm] MovieDto movieDto, CancellationToken token = default)
     {
-        MovieDtoResponse createdMovie = await _movieService.CreateMovieAsync(movieDto);
+        MovieDtoResponse createdMovie = await _movieService.CreateMovieAsync(movieDto, token);
 
         return CreatedAtAction("GetMovie", new { id = createdMovie.Id},createdMovie);
     }
 
     [HttpGet]
     [ProducesResponseType(typeof(MoviesViewResponseDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllMoviesAsync([FromQuery] MovieOptionsDto optionsDto, CancellationToken token)
+    public async Task<IActionResult> GetAllMoviesAsync([FromQuery] MovieOptionsDto optionsDto, CancellationToken token = default)
     {
         MoviesViewResponseDto movies = await _movieService.GetAllMoviesAsync(optionsDto,token);
 
@@ -41,7 +41,7 @@ public class MovieController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetMovieAsync(int id, CancellationToken token)
+    public async Task<IActionResult> GetMovieAsync(int id, CancellationToken token = default)
     {
         MovieDtoResponse? movie = await _movieService.GetMovieByIdAsync(id, token);
 
@@ -54,9 +54,9 @@ public class MovieController : ControllerBase
     [HttpGet("stream-movie/{videoName}")]
     [ProducesResponseType(typeof(IAsyncEnumerable<byte[]>), StatusCodes.Status200OK)]
     [AllowAnonymous]
-    public async IAsyncEnumerable<byte[]> SrteamVideo(string videoName, CancellationToken token)
+    public async IAsyncEnumerable<byte[]> SrteamVideo(string videoName, [EnumeratorCancellation] CancellationToken token = default)
     {
-        await foreach (var chunk in _movieService.StreamVideoAsync(videoName))
+        await foreach (var chunk in _movieService.StreamVideoAsync(videoName).WithCancellation(token))
             yield return chunk;
     }
 
@@ -65,7 +65,7 @@ public class MovieController : ControllerBase
     [ProducesResponseType(typeof(MovieDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EditMovieAsync([FromForm] MovieDto movieDto, CancellationToken token)
+    public async Task<IActionResult> EditMovieAsync([FromForm] MovieDto movieDto, CancellationToken token = default)
     {
         MovieDtoResponse? updatedMovie = await _movieService.EditMovieAsync(movieDto, token);
 
@@ -79,7 +79,7 @@ public class MovieController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteMovieAsync(int id, CancellationToken token)
+    public async Task<IActionResult> DeleteMovieAsync(int id, CancellationToken token = default)
     {
         bool isDeleted = await _movieService.DeleteMovieAsync(id,token);
 
