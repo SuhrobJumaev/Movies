@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using System.Runtime.CompilerServices;
 
 namespace Movies.BusinessLogic;
 
 public class VideoService : IVideoService
 {
-    private string  _pathToWwwRoot;
+    private string _pathToWwwRoot;
     public VideoService(IWebHostEnvironment hostEnvironment)
     {
         _pathToWwwRoot = hostEnvironment.WebRootPath;
@@ -17,15 +18,15 @@ public class VideoService : IVideoService
         File.Delete(_pathToWwwRoot + videoName);
     }
 
-    public async Task<string> SaveVideoAsync(IFormFile video)
+    public async Task<string> SaveVideoAsync(IFormFile video, CancellationToken token = default)
     {
         string uniqueVideoName = GetUniqueVideoName(video.FileName);
 
-        await Console.Out.WriteLineAsync( _pathToWwwRoot);
+        await Console.Out.WriteLineAsync(_pathToWwwRoot);
         using var fileStream = new FileStream(Path.Combine(_pathToWwwRoot, uniqueVideoName), FileMode.Create);
 
-        await video.CopyToAsync(fileStream);
-       
+        await video.CopyToAsync(fileStream, token);
+
         await fileStream.FlushAsync();
 
         return uniqueVideoName;
@@ -38,4 +39,6 @@ public class VideoService : IVideoService
                   + Guid.NewGuid().ToString().Substring(0, 6)
                   + Path.GetExtension(fileName);
     }
+
+    
 }
