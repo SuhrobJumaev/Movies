@@ -20,16 +20,16 @@ public class RoleController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(RoleDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto roleDto, CancellationToken token)
+    public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto roleDto, CancellationToken token = default)
     {
-        RoleDto createdRole = await _roleService.CreateRoleAsync(roleDto);
+        RoleDto createdRole = await _roleService.CreateRoleAsync(roleDto, token);
 
         return CreatedAtAction("GetRole", new { id = createdRole.Id }, createdRole);
     }
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<RoleDto>),StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllRolesAsync(CancellationToken token)
+    public async Task<IActionResult> GetAllRolesAsync(CancellationToken token = default)
     {
         IEnumerable<RoleDto> roles = await _roleService.GetAllRolesAsync(token);
 
@@ -39,7 +39,7 @@ public class RoleController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetRoleAsync(int id, CancellationToken token)
+    public async Task<IActionResult> GetRoleAsync(int id, CancellationToken token = default)
     {
         RoleDto? role = await _roleService.GetRoleByIdAsync(id, token);
 
@@ -53,7 +53,7 @@ public class RoleController : ControllerBase
     [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> EditRoleAsync([FromBody] RoleDto roleDto, CancellationToken token)
+    public async Task<IActionResult> EditRoleAsync([FromBody] RoleDto roleDto, CancellationToken token = default)
     {
         RoleDto? updatedRole = await _roleService.EditRoleAsync(roleDto, token);
 
@@ -66,7 +66,7 @@ public class RoleController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteRoleAsync(int id, CancellationToken token)
+    public async Task<IActionResult> DeleteRoleAsync(int id, CancellationToken token = default)
     {
         bool isDeleted = await _roleService.DeleteRoleAsync(id, token);
 

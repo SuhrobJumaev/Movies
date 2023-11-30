@@ -20,16 +20,16 @@ public class GenreController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(GenreDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateGenreAsync([FromBody] GenreDto genreDto, CancellationToken token)
+    public async Task<IActionResult> CreateGenreAsync([FromBody] GenreDto genreDto, CancellationToken token = default)
     {
-        GenreDto createdGenre = await _genreService.CreateGenreAsync(genreDto);
+        GenreDto createdGenre = await _genreService.CreateGenreAsync(genreDto, token);
 
         return CreatedAtAction("GetGenre", new { id = createdGenre.Id }, createdGenre);
     }
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GenreDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllGenresAsync(CancellationToken token)
+    public async Task<IActionResult> GetAllGenresAsync(CancellationToken token = default)
     {
         IEnumerable<GenreDto> genres = await _genreService.GetAllGenresAsync(token);
 
@@ -39,7 +39,7 @@ public class GenreController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GenreDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetGenreAsync(int id, CancellationToken token)
+    public async Task<IActionResult> GetGenreAsync(int id, CancellationToken token = default)
     {
         GenreDto? genre = await _genreService.GetGenreByIdAsync(id, token);
 
@@ -53,7 +53,7 @@ public class GenreController : ControllerBase
     [ProducesResponseType(typeof(GenreDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EditGenreAsync([FromBody] GenreDto genreDto, CancellationToken token)
+    public async Task<IActionResult> EditGenreAsync([FromBody] GenreDto genreDto, CancellationToken token = default)
     {
         GenreDto? updatedGenre = await _genreService.EditGenreAsync(genreDto, token);
 
@@ -66,7 +66,7 @@ public class GenreController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteGenreAsync(int id, CancellationToken token)
+    public async Task<IActionResult> DeleteGenreAsync(int id, CancellationToken token = default)
     {
         bool isDeleted = await _genreService.DeleteGenreAsync(id, token);
 
